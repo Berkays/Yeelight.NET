@@ -30,11 +30,14 @@ namespace YeelightNET
 
             client.JoinMulticastGroup(multicastAddress);
 
-            try
+
+            var receiveTask = Task.Run(() =>
             {
-                var receiveTask = Task.Run(() =>
+                string localIp = NetworkUtils.GetLocalIPAddress();
+                client.Client.ReceiveTimeout = 1000;
+
+                try
                 {
-                    string localIp = NetworkUtils.GetLocalIPAddress();
 
                     while (true)
                     {
@@ -49,10 +52,20 @@ namespace YeelightNET
                         if (devices.Contains(device) == false)
                             devices.Add(device);
 
-                        break;
                     }
-                });
+                }
+                catch (SocketException)
+                {
 
+                }
+                catch (ObjectDisposedException)
+                {
+
+                }
+            });
+
+            try
+            {
                 var sendTask = Task.Run(() =>
                 {
                     byte[] buffer = Encoding.ASCII.GetBytes(dgram);
@@ -125,7 +138,7 @@ namespace YeelightNET
             }
             catch (SocketException)
             {
-                Console.WriteLine("Unable to connect to server.");
+                Console.WriteLine("Unable to connect to device.");
                 return false;
             }
 
@@ -218,7 +231,8 @@ namespace YeelightNET
             ColorTemperature = 13,
             RGB = 14,
             Hue = 15,
-            Saturation = 16
+            Saturation = 16,
+            Name = 17
         }
     }
 
