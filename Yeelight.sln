@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YeelightTest", "Yeelight\YeelightTest.csproj", "{53369F4C-BADE-48A1-B91C-EE749C7C0FEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YeelightNET", "Yeelight.NET\YeelightNET.csproj", "{5718D8AB-751F-4CAB-B1CA-C966E544DD81}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53369F4C-BADE-48A1-B91C-EE749C7C0FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53369F4C-BADE-48A1-B91C-EE749C7C0FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53369F4C-BADE-48A1-B91C-EE749C7C0FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53369F4C-BADE-48A1-B91C-EE749C7C0FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5718D8AB-751F-4CAB-B1CA-C966E544DD81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5718D8AB-751F-4CAB-B1CA-C966E544DD81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5718D8AB-751F-4CAB-B1CA-C966E544DD81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5718D8AB-751F-4CAB-B1CA-C966E544DD81}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
