@@ -15,6 +15,7 @@ Reference the compiled class or insert the source code into your project.
 
 ### Discovering devices
 **IMPORTANT !**
+
 In order to discover and control the xiaomi yeelight devices in the local network, you have to download and install yeelight app and enable the LAN control for each device.
 
 Android Application: https://play.google.com/store/apps/details?id=com.yeelight.cherry&hl=en
