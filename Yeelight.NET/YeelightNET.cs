@@ -17,6 +17,7 @@ namespace YeelightNET
         private const string MULTICAST_ADDRESS = "239.255.255.250"; //Yeelight multicast address
         private const int DEVICE_PORT = 1982; //Yeelight comm port
 
+        //Returns a list of devices in the local network
         public static async Task<List<Device>> DiscoverDevices()
         {
             List<Device> devices = new List<Device>();
@@ -47,7 +48,8 @@ namespace YeelightNET
                         if (anyEndPoint.Address.ToString() == localIp)
                             continue;
 
-                        Device device = new Device(Encoding.ASCII.GetString(response));
+                        //Initialize a new Device
+                        Device device = Device.Initialize(Encoding.ASCII.GetString(response));
 
                         if (devices.Contains(device) == false)
                             devices.Add(device);
@@ -93,6 +95,7 @@ namespace YeelightNET
             return devices;
         }
 
+        //Execute a command in the yeelight
         public static bool SendCommand(Device device, int id, string method, dynamic[] parameters)
         {
             var obj = new { id = id, method = method, @params = parameters };
@@ -126,6 +129,7 @@ namespace YeelightNET
                     client.Client.Receive(buffer);
 
                     client.Close();
+                    client = null;
 
                     string responseJSON = Encoding.ASCII.GetString(buffer);
                     dynamic response = JsonConvert.DeserializeObject(responseJSON);
@@ -133,6 +137,8 @@ namespace YeelightNET
                 }
                 else
                 {
+                    client.Close();
+                    client = null;
                     return false;
                 }
             }
@@ -146,8 +152,12 @@ namespace YeelightNET
 
         public class Device : IEquatable<Device>
         {
+            public event Action<DeviceProperty> onPropertyChanged;
+
+            //Dictionary holds device properties. Can be accessed with an indexer
             private Dictionary<DeviceProperty, dynamic> DeviceValues = new Dictionary<DeviceProperty, dynamic>();
 
+            //A shorthand for converting power state to a boolean
             public bool isPowered
             {
                 get
@@ -156,9 +166,12 @@ namespace YeelightNET
                 }
             }
 
-            public Device(string data)
+            //Initializes a new instance of a device
+            public static Device Initialize(string data)
             {
-                this.getProperties(data);
+                Device device = new Device();
+                device.getProperties(data);
+                return device;
             }
 
             //Indexer for Dictionary
@@ -175,11 +188,21 @@ namespace YeelightNET
                 set
                 {
                     if (this.DeviceValues.ContainsKey(dp))
+                    {
                         this.DeviceValues[dp] = value;
+
+                        onPropertyChanged?.Invoke(dp);
+                    }
                 }
             }
 
-            //Returns dynamic value in concrete type
+            //Return copy of current state
+            public Dictionary<DeviceProperty, dynamic> getState()
+            {
+                return new Dictionary<DeviceProperty, dynamic>(DeviceValues);
+            }
+
+            //Returns dynamic value in generic type
             public T getValue<T>(DeviceProperty dp)
             {
                 if (this.DeviceValues.ContainsKey(dp))
@@ -196,6 +219,7 @@ namespace YeelightNET
                     return false;
             }
 
+            //Parses values from udp response and fills dictionary
             private void getProperties(string data)
             {
                 string[] set = data.Trim('\n').Split('\r');
@@ -238,6 +262,7 @@ namespace YeelightNET
 
     public static class NetworkUtils
     {
+        //Return local ip address of the network interface
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -251,6 +276,7 @@ namespace YeelightNET
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
 
+        //Return local ip address from full address
         public static string getAddress(string fullAddress)
         {
             Regex regex = new Regex(@"\d{3}.\d{3}.\d{1,3}.\d{1,3}");
@@ -263,6 +289,7 @@ namespace YeelightNET
                 return String.Empty;
         }
 
+        //Return port number from full address
         public static int getPort(string fullAddress)
         {
             Regex regex = new Regex(@":(\d{1,5})");

@@ -21,14 +21,14 @@ namespace YeelightNET
             return device;
         }
 
-        public static async Task<Device> Blink(this Device device, int duration = 500, int delay = 4000, int count = 2)
+        public static Device Blink(this Device device, int duration = 500, int delay = 4000, int count = 2)
         {
             for (int i = 0; i < count; i++)
             {
-                Toggle(device, duration);
-                await Task.Delay(delay);
-                Toggle(device, duration);
-                await Task.Delay(delay);
+                device.Toggle(duration);
+                device.WaitCmd(delay);
+                device.Toggle(duration);
+                device.WaitCmd(delay);
             }
 
             return device;
@@ -70,6 +70,21 @@ namespace YeelightNET
 
             return device;
         }
+        public static Device SetRgbColor(this Device device, int rgb, int duration = 500)
+        {
+            if (device.isPowered)
+            {
+                bool isSuccesful = SendCommand(device, 0, "set_rgb", new dynamic[] { rgb, "smooth", duration });
+
+                if (isSuccesful)
+                {
+                    device[DeviceProperty.RGB] = rgb;
+                    device[DeviceProperty.ColorMode] = 1;
+                }
+            }
+
+            return device;
+        }
 
         public static Device SetBrightness(this Device device, int brightness, int duration = 500)
         {
@@ -96,9 +111,9 @@ namespace YeelightNET
             return device;
         }
 
-        public static async Task<Device> Wait(this Device device, int duration = 3000)
+        public static Device WaitCmd(this Device device, int duration = 500)
         {
-            await Task.Delay(duration);
+            Task.Delay(duration).Wait();
             return device;
         }
     }
