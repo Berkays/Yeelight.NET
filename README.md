@@ -48,7 +48,7 @@ The **onPropertyChanged** event can be used to notify when a property changes th
 ## Yeelight Documentation
 https://www.yeelight.com/download/Yeelight_Inter-Operation_Spec.pdf
 ## License
-This project is licensed under the GNUv3 License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the GNUv3 License - see the [LICENSE](LICENSE) file for details.
 ## Contact
 *Contact for any bugs or requests.*
 
