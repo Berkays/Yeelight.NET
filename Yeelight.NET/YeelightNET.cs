@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -18,81 +18,59 @@ namespace YeelightNET
         private const int DEVICE_PORT = 1982; //Yeelight comm port
 
         //Returns a list of devices in the local network
-        public static async Task<List<Device>> DiscoverDevices()
+        public static async Task<List<Device>> DiscoverDevices(int pingTime = 20)
         {
-            List<Device> devices = new List<Device>();
+            Dictionary<string, Device> devices = new Dictionary<string, Device>();
 
-            UdpClient client = new UdpClient(DEVICE_PORT);
-
-            IPAddress multicastAddress = IPAddress.Parse(MULTICAST_ADDRESS);
-
-            IPEndPoint remoteEndPoint = new IPEndPoint(multicastAddress, DEVICE_PORT);
-            IPEndPoint anyEndPoint = new IPEndPoint(IPAddress.Any, DEVICE_PORT);
-
-            client.JoinMulticastGroup(multicastAddress);
-
-
-            var receiveTask = Task.Run(() =>
+            using (UdpClient socket = new UdpClient())
             {
-                string localIp = NetworkUtils.GetLocalIPAddress();
-                client.Client.ReceiveTimeout = 1000;
+                socket.Client.ReceiveTimeout = 1000;
 
-                try
-                {
+                IPAddress multicastAddress = IPAddress.Parse(MULTICAST_ADDRESS);
 
-                    while (true)
-                    {
-                        var response = client.Receive(ref anyEndPoint);
+                IPEndPoint remoteEndPoint = new IPEndPoint(multicastAddress, DEVICE_PORT);
+                IPEndPoint anyEndPoint = new IPEndPoint(IPAddress.Any, DEVICE_PORT);
 
-                        //Pass if sender is same as receiver
-                        if (anyEndPoint.Address.ToString() == localIp)
-                            continue;
+                socket.JoinMulticastGroup(multicastAddress);
 
-                        //Initialize a new Device
-                        Device device = Device.Initialize(Encoding.ASCII.GetString(response));
-
-                        if (devices.Contains(device) == false)
-                            devices.Add(device);
-
-                    }
-                }
-                catch (SocketException)
-                {
-
-                }
-                catch (ObjectDisposedException)
-                {
-
-                }
-            });
-
-            try
-            {
-                var sendTask = Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     byte[] buffer = Encoding.ASCII.GetBytes(dgram);
+                    string localIp = NetworkUtils.GetLocalIPAddress();
 
-                    //Send 5 times with 250 ms delay
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < pingTime; i++)
                     {
-                        client.Send(buffer, buffer.Length, remoteEndPoint);
-                        Task.Delay(250).Wait();
+                        await socket.SendAsync(buffer, buffer.Length, remoteEndPoint);
+                        await Task.Delay(50);
+                        try
+                        {
+                            var response = await socket.ReceiveAsync();
+
+                            var deviceIp = response.RemoteEndPoint.Address.ToString();
+
+                            if (deviceIp == localIp || devices.ContainsKey(deviceIp))
+                                continue;
+
+                            var deviceInfo = Encoding.ASCII.GetString(response.Buffer);
+                            var device = Device.Initialize(deviceInfo);
+
+                            lock (devices)
+                            {
+                                devices.Add(deviceIp, device);
+                            }
+
+                        }
+                        catch (Exception exc)
+                        {
+                            Console.WriteLine(exc.ToString());
+                            continue;
+                        }
+                        Task.Delay(200).Wait();
                     }
                 });
-
-                //Wait for sending to finish
-                await sendTask;
-            }
-            catch
-            {
-                //Handle connection exceptions
-            }
-            finally
-            {
-                client.Close();
             }
 
-            return devices;
+            return devices.Select(n => n.Value).ToList();
         }
 
         //Execute a command in the yeelight
@@ -150,163 +128,5 @@ namespace YeelightNET
 
         }
 
-        public class Device : IEquatable<Device>
-        {
-            public event Action<DeviceProperty> onPropertyChanged;
-
-            //Dictionary holds device properties. Can be accessed with an indexer
-            private Dictionary<DeviceProperty, dynamic> DeviceValues = new Dictionary<DeviceProperty, dynamic>();
-
-            //A shorthand for converting power state to a boolean
-            public bool isPowered
-            {
-                get
-                {
-                    return this[DeviceProperty.Power].ToString() == "on";
-                }
-            }
-
-            //Initializes a new instance of a device
-            public static Device Initialize(string data)
-            {
-                Device device = new Device();
-                device.getProperties(data);
-                return device;
-            }
-
-            //Indexer for Dictionary
-            public dynamic this[DeviceProperty dp]
-            {
-                get
-                {
-                    if (this.DeviceValues.ContainsKey(dp))
-                        return this.DeviceValues[dp];
-                    else
-                        return null;
-                }
-
-                set
-                {
-                    if (this.DeviceValues.ContainsKey(dp))
-                    {
-                        this.DeviceValues[dp] = value;
-
-                        onPropertyChanged?.Invoke(dp);
-                    }
-                }
-            }
-
-            //Return copy of current state
-            public Dictionary<DeviceProperty, dynamic> getState()
-            {
-                return new Dictionary<DeviceProperty, dynamic>(DeviceValues);
-            }
-
-            //Returns dynamic value in generic type
-            public T getValue<T>(DeviceProperty dp)
-            {
-                if (this.DeviceValues.ContainsKey(dp))
-                    return (T)this.DeviceValues[dp];
-                else
-                    return default(T);
-            }
-
-            public bool Equals(Device other)
-            {
-                if (this[DeviceProperty.Id] == other[DeviceProperty.Id])
-                    return true;
-                else
-                    return false;
-            }
-
-            //Parses values from udp response and fills dictionary
-            private void getProperties(string data)
-            {
-                string[] set = data.Trim('\n').Split('\r');
-                var propArray = (int[])Enum.GetValues(typeof(DeviceProperty));
-                foreach (var i in propArray)
-                {
-                    string val = parseValue(set[i]);
-                    try
-                    {
-                        DeviceValues.Add((DeviceProperty)i, int.Parse(val));
-                    }
-                    catch
-                    {
-                        DeviceValues.Add((DeviceProperty)i, val);
-                    }
-                }
-            }
-
-            private string parseValue(string raw)
-            {
-                int startPos = raw.IndexOf(':') + 1;
-                return raw.Substring(startPos).Trim();
-            }
-        }
-
-        public enum DeviceProperty
-        {
-            Location = 4,
-            Id = 6,
-            Power = 10,
-            Brightness = 11,
-            ColorMode = 12,
-            ColorTemperature = 13,
-            RGB = 14,
-            Hue = 15,
-            Saturation = 16,
-            Name = 17
-        }
-    }
-
-    public static class NetworkUtils
-    {
-        //Return local ip address of the network interface
-        public static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
-
-        //Return local ip address from full address
-        public static string getAddress(string fullAddress)
-        {
-            Regex regex = new Regex(@"\d{3}.\d{3}.\d{1,3}.\d{1,3}");
-
-            Match match = regex.Match(fullAddress);
-
-            if (match.Success)
-                return match.Value;
-            else
-                return String.Empty;
-        }
-
-        //Return port number from full address
-        public static int getPort(string fullAddress)
-        {
-            Regex regex = new Regex(@":(\d{1,5})");
-
-            Match match = regex.Match(fullAddress);
-
-            try
-            {
-                if (match.Success)
-                    return int.Parse(match.Groups[1].Value);
-                else
-                    return 0;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
     }
 }
