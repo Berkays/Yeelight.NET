@@ -5,7 +5,7 @@ C#.NET Api used to control xiaomi yeelight devices over the Local Area Network.
 
 ## Installation
 
-![](https://img.shields.io/badge/nuget-1.1.1-blue.svg?link=https://www.nuget.org/packages/YeelightNET/)
+[![NUGET](https://img.shields.io/badge/nuget-1.1.1-blue.svg)](https://www.nuget.org/packages/YeelightNET/)
 
 Using Nuget Package Manager:
 
