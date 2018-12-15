@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using YeelightNET;
 
@@ -6,16 +8,24 @@ namespace YeelightTest
 {
     class Program
     {
+        /* 
+            Use async main in C#7.1 and after.
+            Devices = await Yeelight.DiscoverDevices()
+            instead of
+            Devices = Yeelight.DiscoverDevices().Result
+        */
         static void Main(string[] args)
         {
             Console.WriteLine("Discovering Devices...");
 
+            List<Device> Devices = new List<Device>();
+
             //Search for devices in the local network
-            var Devices = Yeelight.DiscoverDevices().Result;
+            Devices = Yeelight.DiscoverDevices().Result;
 
             foreach (var device in Devices)
             {
-                Console.WriteLine("Device: {0}, Name: {1}, State: {2}", device[Yeelight.DeviceProperty.Id], device[Yeelight.DeviceProperty.Name], device[Yeelight.DeviceProperty.Power]);
+                Console.WriteLine("Device: {0}, Name: {1}, State: {2}", device[DeviceProperty.Id], device[DeviceProperty.Name], device[DeviceProperty.Power]);
 
                 //Print when a property changes
                 device.onPropertyChanged += (dp) => { Console.WriteLine("Property Changed: {0}", dp.ToString()); };
@@ -53,7 +63,7 @@ namespace YeelightTest
                 {
                 }
 
-                Yeelight.Device mDevice = Devices[mIndex];
+                Device mDevice = Devices[mIndex];
 
 
                 if (function == "toggle")
@@ -89,11 +99,11 @@ namespace YeelightTest
                 {
                     Console.Write("\nTesting...");
 
-                    mDevice.Toggle().WaitCmd(2000).SetBrightness(20).WaitCmd(5000).SetRgbColor(0,255,0).WaitCmd(5000).SetBrightness(5).SetColorTemperature(2000).WaitCmd(5000).Toggle();
+                    mDevice.Toggle().WaitCmd(2000).SetBrightness(20).WaitCmd(5000).SetRgbColor(0, 255, 0).WaitCmd(5000).SetBrightness(5).SetColorTemperature(2000).WaitCmd(5000).Toggle();
                 }
                 else if (function == "name")
                 {
-                    Console.Write("\nCurrent name:{0}", mDevice[Yeelight.DeviceProperty.Name]);
+                    Console.Write("\nCurrent name:{0}", mDevice[DeviceProperty.Name]);
                     Console.Write("\nNew name: ");
                     var newName = Console.ReadLine();
 
@@ -103,14 +113,14 @@ namespace YeelightTest
                 {
                     Console.WriteLine("\nStatus:");
 
-                    Console.WriteLine("Id: {0}", mDevice[Yeelight.DeviceProperty.Id]);
-                    Console.WriteLine("Location: {0}", mDevice[Yeelight.DeviceProperty.Location]);
-                    Console.WriteLine("Name: {0}", mDevice[Yeelight.DeviceProperty.Name]);
-                    Console.WriteLine("State: {0}", mDevice[Yeelight.DeviceProperty.Power]);
-                    Console.WriteLine("Brightness: {0}", mDevice[Yeelight.DeviceProperty.Brightness]);
-                    Console.WriteLine("Color Mode: {0}", mDevice[Yeelight.DeviceProperty.ColorMode]);
-                    Console.WriteLine("RGB: {0},{1},{2}", mDevice[Yeelight.DeviceProperty.RGB] >> 16, (Devices[0][Yeelight.DeviceProperty.RGB] >> 8) & 255, Devices[0][Yeelight.DeviceProperty.RGB] & 255);
-                    Console.WriteLine("Color Temperature: {0} K", mDevice[Yeelight.DeviceProperty.ColorTemperature]);
+                    Console.WriteLine("Id: {0}", mDevice[DeviceProperty.Id]);
+                    Console.WriteLine("Location: {0}", mDevice[DeviceProperty.Location]);
+                    Console.WriteLine("Name: {0}", mDevice[DeviceProperty.Name]);
+                    Console.WriteLine("State: {0}", mDevice[DeviceProperty.Power]);
+                    Console.WriteLine("Brightness: {0}", mDevice[DeviceProperty.Brightness]);
+                    Console.WriteLine("Color Mode: {0}", mDevice[DeviceProperty.ColorMode]);
+                    Console.WriteLine("RGB: {0},{1},{2}", mDevice[DeviceProperty.RGB] >> 16, (Devices[0][DeviceProperty.RGB] >> 8) & 255, Devices[0][DeviceProperty.RGB] & 255);
+                    Console.WriteLine("Color Temperature: {0} K", mDevice[DeviceProperty.ColorTemperature]);
                 }
                 else if (function == "quit")
                 {
