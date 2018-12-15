@@ -12,7 +12,7 @@ namespace YeelightNET
             if (device.isPowered)
                 newState = "off";
 
-            bool isSuccesful = SendCommand(device, 0, "set_power", new dynamic[] { newState, "smooth", duration });
+            bool isSuccesful = Yeelight.SendCommand(device, 0, "set_power", new dynamic[] { newState, "smooth", duration });
 
             if (isSuccesful)
                 device[DeviceProperty.Power] = newState;
@@ -40,7 +40,7 @@ namespace YeelightNET
 
             if (device.isPowered)
             {
-                bool isSuccesful = SendCommand(device, 0, "set_ct_abx", new dynamic[] { temperature, "smooth", duration });
+                bool isSuccesful = Yeelight.SendCommand(device, 0, "set_ct_abx", new dynamic[] { temperature, "smooth", duration });
 
                 if (isSuccesful)
                 {
@@ -58,7 +58,7 @@ namespace YeelightNET
 
             if (device.isPowered)
             {
-                bool isSuccesful = SendCommand(device, 0, "set_rgb", new dynamic[] { rgb, "smooth", duration });
+                bool isSuccesful = Yeelight.SendCommand(device, 0, "set_rgb", new dynamic[] { rgb, "smooth", duration });
 
                 if (isSuccesful)
                 {
@@ -73,7 +73,7 @@ namespace YeelightNET
         {
             if (device.isPowered)
             {
-                bool isSuccesful = SendCommand(device, 0, "set_rgb", new dynamic[] { rgb, "smooth", duration });
+                bool isSuccesful = Yeelight.SendCommand(device, 0, "set_rgb", new dynamic[] { rgb, "smooth", duration });
 
                 if (isSuccesful)
                 {
@@ -91,7 +91,7 @@ namespace YeelightNET
 
             if (device.isPowered)
             {
-                bool isSuccesful = SendCommand(device, 0, "set_bright", new dynamic[] { brightness, "smooth", duration });
+                bool isSuccesful = Yeelight.SendCommand(device, 0, "set_bright", new dynamic[] { brightness, "smooth", duration });
 
                 if (isSuccesful)
                     device[DeviceProperty.Brightness] = brightness;
@@ -102,7 +102,7 @@ namespace YeelightNET
 
         public static Device SetName(this Device device, string name)
         {
-            bool isSuccesful = SendCommand(device, 0, "set_name", new dynamic[] { name });
+            bool isSuccesful = Yeelight.SendCommand(device, 0, "set_name", new dynamic[] { name });
 
             if (isSuccesful)
                 device[DeviceProperty.Name] = name;
