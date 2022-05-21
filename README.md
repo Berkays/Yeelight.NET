@@ -25,8 +25,8 @@ IOS Application: https://itunes.apple.com/gb/app/yeelight/id977125608?mt=8
 
 To get a list of devices, simply use the async function:
 
-    List<Device> devices = await Yeelight.DiscoverDevices();
-    OR 
+    List<Device> devices = await Yeelight.DiscoverDevices(timeout:2500);
+    OR
     List<Device> devices = Yeelight.DiscoverDevices().Result; //for synchronous
 You should also let firewall to allow request in the first run.
 
