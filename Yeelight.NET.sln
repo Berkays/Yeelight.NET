@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yeelight.NET", "Lib\YeelightNET.csproj", "{1B82CD9E-97B4-44CC-8573-C11FD065322E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{9FAA2263-2E19-4A2C-A6E0-83AAB19E87DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1B82CD9E-97B4-44CC-8573-C11FD065322E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B82CD9E-97B4-44CC-8573-C11FD065322E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B82CD9E-97B4-44CC-8573-C11FD065322E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B82CD9E-97B4-44CC-8573-C11FD065322E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FAA2263-2E19-4A2C-A6E0-83AAB19E87DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FAA2263-2E19-4A2C-A6E0-83AAB19E87DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FAA2263-2E19-4A2C-A6E0-83AAB19E87DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FAA2263-2E19-4A2C-A6E0-83AAB19E87DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
