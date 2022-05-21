@@ -49,8 +49,6 @@ public class Yeelight
                     if (deviceIp == localIp || devices.ContainsKey(deviceIp))
                         continue;
 
-                    Console.WriteLine(deviceIp);
-
                     var deviceInfo = Encoding.ASCII.GetString(response.Buffer);
                     var device = Device.Initialize(deviceInfo);
 
